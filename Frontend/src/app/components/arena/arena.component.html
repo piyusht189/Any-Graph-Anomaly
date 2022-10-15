@@ -1,0 +1,666 @@
+<div style="height: auto;display: flex;font-size: 0.9em;" id="header">
+    <div style="width: 25%; display: block;color:#fff;
+    padding: 0px 10px 0px 15px;">
+        <h4 style="margin: 5px 0px 10px 0px;">Anomaly Detection</h4>
+        <div style="display: flex; margin-top: 20px;">
+            <label>Select Dataset&nbsp;&nbsp;</label>
+            <select [(ngModel)] = "selected_dataset" (ngModelChange)="selected_dataset = $event;getDataset(selected_interval ? selected_interval['value'] : '1D');" style="border-radius: 10px;
+            padding: 3px 10px 4px 10px;
+            margin-top: -4px;
+            font-size: 0.9em;
+            outline: none;
+            color: #004ec5;">
+                <option [value]="">-Select Preprocessed Datasets-</option>
+                <option *ngFor="let ds of datasets" [value]='ds'>{{ ds }}</option>
+            </select>
+        </div>
+    </div>
+    <div style="width: 25%; display: block;color:#fff;
+    padding: 4px 10px 6px 10px; text-align: center;">
+            <div style=" margin-top: 15px;display: flex;" *ngIf="selected_dataset != 'darpa'"  id="layout_option_div" class="layout_option_div" >
+                <div style="margin-right: 20px;">
+                    Layout Algorithm
+                </div>
+                <select
+                    id="layouts"
+                    [(ngModel)] = "selected_layout"
+                    (ngModelChange)="layoutChanged($event)"
+                    style="border-radius: 10px;
+                            padding: 3px 10px 4px 10px;
+                            margin-top: -4px;
+                            font-size: 0.9em;
+                            outline: none;
+                            color: #004ec5;">
+
+                    <option value="no_layout">No Layout</option>
+
+                    <option value="kamada_kawai_layout"
+                    >Kamada Kawai Layout</option
+                    >
+                    <option value="circular_layout"
+                    >Circular Layout</option
+                    >
+                    <option value="shell_layout"
+                    >Shell Layout</option
+                    >
+                    <option value="spring_layout"
+                    >Spring Layout</option
+                    >
+                    <option value="spiral_layout"
+                    >Spiral Layout</option
+                    >
+                </select>
+            </div>
+    </div>
+    <div style="width: 25%; display: block;color:#fff;
+    padding: 4px 10px 6px 10px; text-align: center;">
+            <div style="margin-top: 15px;display: flex;" *ngIf="!stat1_layer && !structure1_layer && !ffade_layer" id="categories_div" class="layout_option_div" >
+                <div id="categories_title_div" style="margin-right: 20px;">
+                     
+                </div>
+                <svg id="categories_list_svg" style="display: flex;
+                                                    width: 0;
+                                                    height: 40px;
+                                                    margin-top: -10px;
+                                                    background: #fff;
+                                                    border-radius: 50px;"> 
+                </svg>
+            </div>
+    </div>
+    <div style="width: 25%; float: right; display: block;color:#fff;">
+        <div style="display: flex;justify-content: flex-end;margin-right: 25px;margin-top: 3px;">
+            <div>
+                 <div class="kpirow">
+                     <label class="kpilabel"><i class="fa fa-circle-nodes"></i>&nbsp;&nbsp;Total Nodes:</label>
+                     <strong class="kpivalue" id="kpi_total_nodes">0</strong>
+                 </div>
+                 <div class="kpirow">
+                    <label class="kpilabel"><i class="fa fa-route"></i>&nbsp;&nbsp;Total Edges:</label>
+                    <strong class="kpivalue" id="kpi_total_edges">0</strong>
+                </div>
+                <div class="kpirow">
+                    <label class="kpilabel"><i class="fa fa-arrows-to-circle"></i>&nbsp;Total Items:</label>
+                    <strong class="kpivalue" id="kpi_total_elements">0</strong>
+                </div>
+             </div>
+        </div>
+    </div>
+</div>
+<div style="display: flex;height: 87vh;position: relative;">
+    <div style="width: 20%;border-right: 2px solid #ffcd38;height:100%;position: relative;">
+        <div style="height: 84%;border-bottom: 2px solid #ffcd38;max-height: 84%; overflow-y: scroll;">
+            <div class="element_selector_options">
+                <label class="labeldd">Entities:&nbsp;&nbsp;</label>
+                <ngx-select-dropdown [config]="config" [options]="elements" 
+                [(ngModel)]="selected_elements" (ngModelChange)="select_elements()" [multiple]="true" ></ngx-select-dropdown>
+            </div>
+            <div>
+            <div class="tab">
+                    <button class="tablinks" (click)="openModule($event, 'edge')" id="defaultOpen">Edge</button>
+                    <button class="tablinks" (click)="openModule($event, 'node')">Node</button>
+            </div>
+                  
+            <div id="edge" class="tabcontent">
+            <div>
+                <h6>Stats Layer</h6>
+                <div class="stats_div">
+                    <div class="stats_checkbox">
+                        <div class="form-check">
+                                <input class="form-check-input maincheckbox" type="checkbox" name="stats1" [checked]="stat1_layer" [(ngModel)]="stat1_layer" (ngModelChange)="changeLayer_edge(1)" id="stats1">
+                        </div>
+                    </div>
+                    <div  class="stats_time">
+                            <div class="stats_duration"><em>Visual: Color</em></div> 
+                            <div style="margin: 16px 0px 20px 0px;">
+                                <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1-start-color"><b [style.background]="stat1_colorMap_low"></b>Low</div>
+
+                                <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1-end-color"><b [style.background]="stat1_colorMap_high"></b>High</div>
+                               
+                            </div> 
+                            <div style="display: flex;margin: 10px 0px 6px 0px;">
+                                <label>Scale:&nbsp;&nbsp;</label>
+                                <select [(ngModel)]="stat1_colorMap_scale" (ngModelChange)="stat1_selected()">
+                                    <option *ngFor="let scale of scales" [value]="scale.function">{{ scale.label }}</option>
+                                </select>
+                            </div> 
+                            <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="stats_duration" [(ngModel)]="stat1_duration" (ngModelChange)="stat1_selected()" value="avg_duration" id="stats_time_average">
+                                    <label>Average {{ durationbased ? 'Duration' : 'Weight' }}</label><br>
+                            </div>
+                            <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="stats_duration" [(ngModel)]="stat1_duration" (ngModelChange)="stat1_selected()" value="total_duration" id="stats_time_total">
+                                    <label class="form-check-label" for="stats_time_total">Total {{ durationbased ? 'Duration' : 'Weight' }}</label>
+                            </div>
+
+                        
+                            
+                    </div>
+                    <div class="stats_weights">
+                            <div class="stats_weights"><em>Visual: Width</em></div> 
+                            <div class="stat1_slider_div" style="margin: 4px 0px 6px 0px;">
+                                    <div class="row align-items-center">
+                                            <div class="col-sm"><div id="slider-range"></div></div>
+                                          </div>
+                            </div>  
+                            <div style="display: flex;margin: 10px 0px 6px 0px;">
+                                    <label>Scale:&nbsp;&nbsp;</label>
+                                    <select [(ngModel)]="stat1_width_scale" (ngModelChange)="stat1_selected()">
+                                        <option *ngFor="let scale of scales" [value]="scale.function">{{ scale.label }}</option>
+                                    </select>
+                            </div> 
+                            <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="stats_weight" [(ngModel)]="stat1_weight" (ngModelChange)="stat1_selected()" value="avg_weight" id="stats_time_average">
+                                    <label>Average Weight</label><br>
+                            </div>
+                            <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="stats_weight" [(ngModel)]="stat1_weight" (ngModelChange)="stat1_selected()" value="total_weight" id="stats_time_total">
+                                    <label class="form-check-label" for="stats_time_total">Total Weight</label>
+                            </div>
+
+                           
+                    </div>
+                </div><br>
+               </div>
+
+                <div>
+                <h6>Structure Layer</h6>
+                <div class="stats_div">
+                    <div class="stats_checkbox">
+                        <div class="form-check">
+                                <input class="form-check-input maincheckbox" type="checkbox" name="structure1" [checked]="structure1_layer" [(ngModel)]="structure1_layer" (ngModelChange)="changeLayer_edge(2)" id="structure1">
+                        </div>
+                    </div>
+                    <div  class="stats_time" style="width:100% !important;">
+                            <div class="stats_duration"><em>Visual: Color</em></div> 
+                            <div style="display: flex;    margin: 10px 0px 2px 0px;">
+                                    <div class="form-check" style="    padding-top: 6px;
+                                    padding-right: 17px;">
+                                            <input class="form-check-input" type="radio"  name="structure1" [(ngModel)]="structure1" (ngModelChange)="structure1_selected()" value="path_breakage" id="structure1_path_breakage">
+                                            <label>Path Breakage</label><br>
+                                    </div>
+                                    <div class="color-btn color-btn-fixed color-btn-vertical" id="structure1_breakage_color"><b [style.background]="structure1_breakage_color"></b>Breakage</div>
+                            </div>
+                            <div style="display: flex;    margin: 10px 0px 2px 0px;">
+                                <div class="form-check" style="    padding-top: 6px;
+                                    padding-right: 40px;">
+                                            <input class="form-check-input" type="radio" name="structure1" [(ngModel)]="structure1" (ngModelChange)="structure1_selected()" value="path_loop" id="structure1_path_loop">
+                                            <label>Path Loops</label><br>
+                                    </div>
+                                    <div class="color-btn color-btn-fixed color-btn-vertical" id="structure1_loop_color"><b [style.background]="structure1_loop_color"></b>Loops</div>
+                                   
+                            </div>
+                           
+
+                        
+                            
+                    </div>
+                     </div><br>
+                </div>
+
+                <div>
+                        <h6>F-FADE Layer</h6>
+                        <div class="stats_div">
+                            <div class="stats_checkbox">
+                                <div class="form-check">
+                                        <input class="form-check-input maincheckbox" type="checkbox" name="ffade" [checked]="ffade_layer" [(ngModel)]="ffade_layer" (ngModelChange)="changeLayer_edge(3)" id="ffade">
+                                </div>
+                            </div>
+                            <div  class="stats_time" style="width:100% !important;position: relative;">
+                                    <div class="stats_duration"><em>Visual: Red Color</em></div> 
+                                    <div class="btn btn-primary ld-ext-right" [class.running] = "ffade_api_training" 
+                                    (click)="ffade_edge_selected()" style="margin: 20px 0px 10px 0px">
+                                              {{ ffade_api_training ? 'Analysing....' : 'Apply' }}
+                                        <div class="ld ld-ring ld-spin"></div>
+                                    </div>
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                        <label>Embedding Size:&nbsp;&nbsp;</label>
+                                        <div class="row align-items-center">
+                                                <div class="col-sm"><div id="slider-range-embedding"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                        <label>Batch Size:&nbsp;&nbsp;</label>
+                                        <div class="row align-items-center">
+                                                <div class="col-sm"><div id="slider-range-batch_size"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                            <label>T Setup:&nbsp;&nbsp;</label>
+                                            <div class="row align-items-center">
+                                                    <div class="col-sm"><div id="slider-range-t_setup"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                            <label>W Update:&nbsp;&nbsp;</label>
+                                            <div class="row align-items-center">
+                                                    <div class="col-sm"><div id="slider-range-W_upd"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                            <label>Alpha:&nbsp;&nbsp;</label>
+                                            <div class="row align-items-center">
+                                                    <div class="col-sm"><div id="slider-range-alpha"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                            <label>T th:&nbsp;&nbsp;</label>
+                                            <div class="row align-items-center">
+                                                    <div class="col-sm"><div id="slider-range-T_th"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                            <label>Epochs:&nbsp;&nbsp;</label>
+                                            <div class="row align-items-center">
+                                                    <div class="col-sm"><div id="slider-range-epochs"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                            <label>Online Train Steps:&nbsp;&nbsp;</label>
+                                            <div class="row align-items-center">
+                                                    <div class="col-sm"><div id="slider-range-online_train_steps"></div></div>
+                                        </div>
+                                    </div> 
+                                    <div class="stat1_slider_div" style="margin: 5px 0px 3px 0px;">
+                                            <label>Memory:&nbsp;&nbsp;</label>
+                                            <div class="row align-items-center">
+                                                    <div class="col-sm"><div id="slider-range-M"></div></div>
+                                        </div>
+                                    </div>                                    
+                                    <div class="btn btn-primary btn-sm" style="margin: 20px 0px 10px 0px" (click)="resetFfade()">
+                                            Reset to default
+                                    </div>
+                                 
+                                    <button (click)="openDemo('ffade')" style="position: absolute;
+                                        top: 5px;
+                                        right: 5px;
+                                        border: none;
+                                        background: #0e6dfd;
+                                        color: #fff;
+                                        border-radius: 10px;
+                                        padding: 3px 7px 4px 7px;
+                                        font-size: 0.9em;
+                                        outline: none;"><i class="fa fa-circle-info"></i> Info</button>                                
+                                    
+                            </div>
+                             </div><br>
+                </div>               
+            </div>
+           
+                
+             </div>
+            
+            <div id="node" class="tabcontent">
+                <div>
+                    <h6>Stats Layer</h6>
+                    <div class="stats_div">
+                        <div class="stats_checkbox">
+                            <div class="form-check">
+                                    <input class="form-check-input maincheckbox" type="checkbox" name="statsnode1" [checked]="stat1_node_layer" [(ngModel)]="stat1_node_layer" (ngModelChange)="changeLayer_node(1)" id="statsnode1">
+                            </div>
+                        </div>
+                        <div  class="stats_time">
+                                <div class="stats_duration"><em>Visual: Glyph colors</em></div>   
+                                <div style="margin: 16px 0px 20px 0px;">
+                                        <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1_in_color"><b [style.background]="stat1_in_color"></b>In</div>
+        
+                                        <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1_out_color"><b [style.background]="stat1_out_color"></b>Out</div>
+                                       
+                                </div> 
+                                <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="stats_inco_outco" [(ngModel)]="stat1_node_duration" (ngModelChange)="stat1_node_selected()" value="income_vs_outgoing" id="stats_time_average">
+                                        <label>Incoming vs<br> Outgoing Edges</label><br>
+                                </div>
+    
+                            
+                                
+                        </div>
+                        <div class="stats_weights">
+                                <div class="stats_weights"><em>Visual: Glyph Radius</em></div>  
+                                <div class="stat1_slider_div" style="margin: 4px 0px 6px 0px;">
+                                        <div class="row align-items-center">
+                                                <div class="col-sm"><div id="slider-range-radius"></div></div>
+                                              </div>
+                                </div> 
+                                <div style="display: flex;margin: 10px 0px 6px 0px;">
+                                        <label>Scale:&nbsp;&nbsp;</label>
+                                        <select [(ngModel)]="stat1_radius_scale" (ngModelChange)="stat1_node_selected()">
+                                            <option *ngFor="let scale of scales_ls" [value]="scale.function">{{ scale.label }}</option>
+                                        </select>
+                                </div> 
+                                <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="stat1_radius" [(ngModel)]="stat1_radius" (ngModelChange)="stat1_node_selected()" value="avg_duration" id="stats_time1_average">
+                                        <label>{{ !durationbased ? 'Outgoing Edges' : 'Average Duration' }}</label><br>
+                                </div>
+                                <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="stat1_radius" [(ngModel)]="stat1_radius" (ngModelChange)="stat1_node_selected()" value="total_duration" id="stats_time1_total">
+                                        <label class="form-check-label" for="stats_time_total">{{ durationbased ? 'Total Duration' : 'Incoming Edges' }}</label>
+                                </div>
+    
+                               
+                        </div>
+                    </div><br>
+
+                    <div class="stats_div">
+                            <div class="stats_checkbox">
+                                <div class="form-check">
+                                        <input class="form-check-input maincheckbox" type="checkbox" name="statsnode2" [checked]="stat2_node_layer" [(ngModel)]="stat2_node_layer" (ngModelChange)="changeLayer_node(2)" id="statsnode2">
+                                </div>
+                            </div>
+                            <div  class="stats_time" style="width: 100%;">
+                                    <div class="stats_duration"><em>Visual: Glyph colors</em></div>   
+                                    <div style="margin: 16px 0px 20px 0px;">
+                                            <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1_r1_color"><b [style.background]="stat1_r1_color"></b>Rank 1</div>
+            
+                                            <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1_r2_color"><b [style.background]="stat1_r2_color"></b>Rank 2</div>
+
+                                            <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1_r3_color"><b [style.background]="stat1_r3_color"></b>Rank 3</div>
+
+                                            <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1_r4_color"><b [style.background]="stat1_r4_color"></b>Rank 4</div>
+
+                                            <div class="color-btn color-btn-fixed color-btn-vertical" id="stat1_r5_color"><b [style.background]="stat1_r5_color"></b>Others</div>
+                                           
+                                    </div> 
+                                    <div class="form-check">
+                                            <input class="form-check-input" type="radio" checked=true name="stats_duration_element">
+                                            <label>Entity wise weights</label><br>
+                                    </div>
+        
+                                
+                                    
+                            </div>
+                        </div><br>
+                    </div>
+
+                    <div *ngIf="thesis">
+                            <h6>Outlier Detector Layer</h6>
+                            <div class="stats_div">
+                                <div class="stats_checkbox">
+                                    <div class="form-check">
+                                            <input class="form-check-input maincheckbox" type="checkbox" name="outlierdetector" [checked]="outlier_node_layer" [(ngModel)]="outlier_node_layer" (ngModelChange)="changeLayer_node(3)" id="outlierdetector">
+                                    </div>
+                                </div>
+                                <div  class="stats_time" style="width:100% !important;position: relative;">
+                                        <div class="stats_duration"><em>Visual: Red Color</em></div> 
+                                        <div style="display: flex;    margin: 10px 0px 2px -20px;">
+                                                <div class="form-check" style="    padding-top: 6px;
+                                                padding-right: 40px;">
+                                                        <input class="form-check-input" type="radio" value="dnoda" name="outlier_sota" [(ngModel)]="selected_sota" (ngModelChange)="outlier_node_selected()">
+                                                        <label>Direct Neighbor Outlier (DNODA)</label><br>
+                                                </div>
+                                              
+                                                
+                                        </div>
+                                        <div style="display: flex;    margin: 5px 0px 2px -20px;">
+                                                <div class="form-check" style="    padding-top: 6px;
+                                                padding-right: 40px;">
+                                                        <input class="form-check-input" type="radio" value="cna" name="outlier_sota" [(ngModel)]="selected_sota" (ngModelChange)="outlier_node_selected()">
+                                                        <label>Communiy Neighbor (CNA)</label><br>
+                                                </div>
+                                              
+                                        </div>
+
+                                        <div style="display: flex;    margin: 5px 0px 2px -20px;">
+                                            <div class="form-check" style="    padding-top: 6px;
+                                            padding-right: 40px;">
+                                                    <input class="form-check-input" type="radio" value="gloda" name="outlier_sota" [(ngModel)]="selected_sota" (ngModelChange)="outlier_node_selected()">
+                                                    <label>Global Outlier (GLODA)</label><br>
+                                        </div>
+                                          
+                                    </div>
+
+                                        <div style="display: flex;margin: 10px 0px 6px -20px;">
+                                            <label>Based on:&nbsp;&nbsp;</label>
+                                            <select [(ngModel)]="outlier_weight_sentiment" (ngModelChange)="outlier_node_selected()" *ngIf="durationbased">
+                                                <option *ngFor="let sentiment of outlier_weight_sentiments" [value]="sentiment.key">{{ sentiment.label }}</option>
+                                            </select>
+                                            <select [(ngModel)]="outlier_weight_sentiment" (ngModelChange)="outlier_node_selected()" *ngIf="!durationbased">
+                                                    <option *ngFor="let sentiment of outlier_weight_sentiments_noduration" [value]="sentiment.key">{{ sentiment.label }}</option>
+                                                </select>
+                                        </div> 
+
+                                        <div style="display: flex;margin: 10px 0px 6px -20px;">
+                                            <label>Top n anomalous nodes:&nbsp;&nbsp;</label>
+                                            <select [(ngModel)]="outlier_top_n" (ngModelChange)="outlier_node_selected()">
+                                                <option *ngFor="let top_n_options of outlier_top_n_options" [value]="top_n_options.key">{{ top_n_options.key }}</option>
+                                            </select>
+                                        </div> 
+
+
+                                    
+
+                                        <button (click)="openDemo('dnoda')"  style="position: absolute;
+                                        top: 3px;
+                                        right: 3px;
+                                        border: none;
+                                        background: #0e6dfd;
+                                        color: #fff;
+                                        border-radius: 10px;
+                                        padding: 3px 7px 4px 7px;
+                                        font-size: 0.9em;
+                                        outline: none;"><i class="fa fa-circle-info"></i> Info</button>     
+
+                                                                        
+                                </div>
+                                 </div><br>
+                    </div>
+
+
+               
+            </div>
+       </div>
+        <div style="height: 16%;">
+                <div class="element_selector_options">
+                    <label class="labeldd">Timeline Interval:&nbsp;&nbsp;</label>
+                    <ngx-select-dropdown [config]="config_timeline" [options]="intervals" 
+                    [(ngModel)]="selected_interval" (ngModelChange)="select_interval()" [multiple]="false" ></ngx-select-dropdown>
+                </div>
+        </div>
+    </div>
+    <div style="width: 80%;height:100%;position: relative;right:0;">
+        <div *ngIf="!locationbased" id="network-vis" style="width: 100%;border-bottom: 2px solid #ffcd38;
+        height: 60%;
+        position: relative !important;
+        outline: none;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;"></div>
+        <div id="map" *ngIf="locationbased" style="width: 100%;border-bottom: 2px solid #ffcd38;
+        height: 60%;
+        position: relative !important;
+        outline: none;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;"
+            leaflet 
+            (leafletMapReady)="onMapReady($event)"
+            [leafletLayersControl]="layersControl"
+            [leafletOptions]="options">
+
+           <leaflet-fullscreen-control *ngIf="fsControl"
+    [map]="mapCanvas"
+    [options]="fullscreenOptions"
+    ></leaflet-fullscreen-control>
+        </div>
+
+        <div style="width: 100%;height:40%;position: relative;">
+            <div id="timelinediv" style="width: 100%;
+            height: 100%;
+            position: relative;
+            outline: none;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;">
+               <!-- Markup -->
+                <div id="combinationChart"></div>
+            </div>
+            <!--div id="scatterplot"></div-->
+        </div>
+        <!--div id="scatterplot"></div-->
+    </div>
+
+
+    <ng-template #edge_details let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Edge: <span class="clicked_edge_name"></span></h4>
+          <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+        </div>
+        <div class="modal-body">
+            <div style="display: flex;">  
+                <div style="width: 50%; display: block;color:#fff;
+                    padding: 7px 10px 5px 10px;">
+
+                         <div class="element_selector_options" style="    padding: 10px 15px;">
+                            <label class="labeldd_black">Timeline Interval:&nbsp;&nbsp;</label>
+                            <ngx-select-dropdown [config]="config_timeline" [options]="intervals" 
+                            [(ngModel)]="selected_edge_interval" (ngModelChange)="select_edge_interval()" [multiple]="false" ></ngx-select-dropdown>
+                        </div>
+                    </div>
+                    <div style="width: 50%; float: right; display: block;font-size: 0.9em">
+                        <div style="display: flex;justify-content: flex-end;margin-right: 25px;">
+                            <div>
+                                 <div class="kpirow kpi_edge_avg_duration">
+                                     <label class="kpilabel"><i class="fa fa-circle-nodes"></i>&nbsp;&nbsp;Average Edge Duration:</label>
+                                     <strong class="kpivalue" id="kpi_edge_avg_duration">0 Min</strong>
+                                 </div>
+                                 <div class="kpirow">
+                                    <label class="kpilabel"><i class="fa fa-route"></i>&nbsp;&nbsp;Average Weight:</label>
+                                    <strong class="kpivalue" id="kpi_edge_avg_weight">0</strong>
+                                </div>
+                                <div class="kpirow">
+                                    <label class="kpilabel"><i class="fa fa-route"></i>&nbsp;Total Edges:</label>
+                                    <strong class="kpivalue" id="kpi_edge_total_edges">0</strong>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+            </div>
+            <div id="edgeCombinationChart"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+        </div>
+      </ng-template>
+
+
+
+      <ng-template #node_details let-modal>
+            <div class="modal-header">
+              <h4 class="modal-title">Node: <span class="clicked_node_name"></span></h4>
+              <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex;">  
+                    <div style="width: 50%; display: block;color:#fff;
+                        padding: 7px 10px 5px 10px;">
+    
+                             <div class="element_selector_options" style="    padding: 10px 15px;">
+                                <label class="labeldd_black">Timeline Interval:&nbsp;&nbsp;</label>
+                                <ngx-select-dropdown [config]="config_timeline" [options]="intervals" 
+                                [(ngModel)]="selected_node_interval" (ngModelChange)="select_node_interval()" [multiple]="false" ></ngx-select-dropdown>
+                            </div>
+                        </div>
+                        <div style="width: 50%; float: right; display: block;font-size: 0.9em">
+                            <div style="display: flex;justify-content: flex-end;margin-right: 25px;">
+                                <div>
+                                     <div class="kpirow" class="kpi_node_avg_duration">
+                                         <label class="kpilabel"><i class="fa fa-circle-nodes"></i>&nbsp;&nbsp;Average Node Duration:</label>
+                                         <strong class="kpivalue" id="kpi_node_avg_duration">0 Min</strong>
+                                     </div>
+                                     <div class="kpirow">
+                                        <label class="kpilabel"><i class="fa fa-route"></i>&nbsp;&nbsp;Total Incoming  Edges:</label>
+                                        <strong class="kpivalue" id="kpi_node_incoming">0</strong>
+                                    </div>
+                                    <div class="kpirow">
+                                        <label class="kpilabel"><i class="fa fa-route"></i>&nbsp;Total Outgoing Edges:</label>
+                                        <strong class="kpivalue" id="kpi_edge_outgoing">0</strong>
+                                    </div>
+                                 </div>
+                            </div>
+                        </div>
+                </div>
+                <div id="nodeCombinationChart"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+            </div>
+          </ng-template>
+
+
+
+          <ng-template #ffade id="ffade" let-modal>
+                <div class="modal-header">
+                  <h4 class="modal-title">F-Fade Algorithm (Yen Yu Chang et al. 2021)</h4>
+                  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: block;margin: 10px;">  
+                        <div>1) Better than other better event detectors</div>
+                        <img src="../../../assets/img/ffade.png" style="width: 90%;margin-bottom: 40px;">
+                        <div>2) The more the memory the more the accuray. Below plotting is an AUC curve against the methods BARRA1 (left), BAARA2 (right)</div>
+                        <img src="../../../assets/img/ffade2.png" style="width: 90%;">
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+                </div>
+              </ng-template>
+
+
+              <ng-template #dnoda id="dnoda" let-modal>
+                    <div class="modal-header">
+                      <h4 class="modal-title">DNODA & CNA Algorithm (Dmitry et al. 2015)</h4>
+                      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="display: block;margin: 10px;">  
+                            <div>1) Direct Neighbor Outlier Detection Algorithm (DNODA):<br>
+                                 Whether a node is an outlier based on the data of direct neighbors of the node.</div> <br>
+
+                            <div>2) Community Neighbor Algorithm (DNODA):<br>
+                            Whether a node is an outlier based on the data of neighbors inside each community of the node.</div>
+                            <img src="../../../assets/img/dnona.png" style="width: 100%;margin-top: 40px;">
+                            <p style="margin-top: 10px">Intel Dataset</p>
+                           
+                            
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+                    </div>
+                  </ng-template>
+
+      <div *ngIf="top_5_node_anomalies.length || top_5_edge_anomalies.length" style="position: absolute;border: 1px solid #4a8cf1;
+      top: 0;
+      right: 0;
+      z-index: 9999;
+      background: #c0d9ffc4;
+      font-size: 0.8em;
+      padding: 10px;">
+
+        <div *ngIf="top_5_node_anomalies.length">
+            <div style="font-weight: 'bold'; color: '#053b8e'">Top {{ top_5_node_anomalies[0]['nodes'].length }} Anomalous Nodes</div>
+            <div *ngFor="let type_obj of top_5_node_anomalies">
+                <div style="font-size: 0.9em; color: '#10025d'">Based on {{ type_obj.type }}</div>
+                <div style="font-size: 0.9em; color: '#ca0000'" *ngFor="let node of type_obj.nodes">
+                    {{ node }}
+                </div>
+            </div>
+        </div>
+        <div *ngIf="top_5_edge_anomalies.length" style="margin-top: 10px;">
+            <div style="font-weight: 'bold'; color: '#053b8e'">Top {{ top_5_edge_anomalies[0]['edges'].length }} Anomalous Edges</div>
+            <div  *ngFor="let type_obj of top_5_edge_anomalies">
+                <div style="font-size: 0.9em; color: '#10025d'">Based on {{ type_obj.type }}</div>
+                <div style="font-size: 0.9em; color: '#ca0000'" *ngFor="let edge of type_obj.edges">
+                        {{ edge }}
+                </div>
+            </div>
+        </div>
+
+      </div>
+
+   
+</div>

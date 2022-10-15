@@ -1,0 +1,157 @@
+#header{
+    background-color: rgb(13 110 253);
+    padding: 0.5% 0% 0.5% 0%;
+}
+#scatterplot{
+    position: relative;
+    height: 97%;
+    width: 95%;
+    display: flex;
+    margin: auto;
+    margin-top: 1%;
+    border: 3px solid #a3c5f7;
+    border-radius: 10px;
+}
+
+#bttnDiv{
+    width: 100%;
+    display: block;
+    margin: auto;
+    margin-top: 20px;
+    text-align: center;
+}
+.selectedNode{
+    fill: rgb(253 237 48)  !important;
+}
+
+.selectedEdge{
+    fill: transparent  !important;
+    stroke: rgb(253 237 48)  !important;
+    /* stroke-width: 3  !important; */
+}
+.hoveredNode{
+    fill:rgb(13 110 253) !important;
+}
+
+.hoveredEdge{
+    fill: transparent !important;
+    stroke: rgb(163 197 247) !important;
+    stroke-width: 3 !important;
+}
+
+
+.fa-download{
+    color: #fff !important;
+    font-size: 1em !important;
+    margin-right: 5px !important;
+    text-align: center !important;
+}
+
+
+.select2-container {
+    width: auto !important;
+    margin-bottom: 18px !important;
+}
+
+.edgeselector .select2-container {
+    width: 100% !important;
+}
+.element_selector_options, .timeline_options{
+    padding: 20px 15px;
+}
+
+
+.kpirow{
+    margin: 4px 0px;
+}
+
+.kpilabel{
+    margin-right: 10px;
+}
+.labeldd{
+    margin-bottom: 10px;
+    display: block;
+}
+.labeldd_black{
+    margin-bottom: 10px;
+    display: block;
+    color: #111
+}
+
+.clicked_edge_name{
+    font-weight: 300;
+    color: #0d6efd
+}
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    font-size: 0.9em;
+  }
+  
+  /* Style the buttons inside the tab */
+  .tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 1em;
+  }
+  
+  /* Change background color of buttons on hover */
+  .tab button:hover {
+    background-color: #ddd;
+  }
+  
+  /* Create an active/current tablink class */
+  .tab button.active {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+  
+  /* Style the tab content */
+  .tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border-top: none;
+    font-size: 0.7em;
+    overflow-y: scroll;
+  }
+
+  .stats_div{
+    display: flex;
+    border: 1px solid #0e6dfd;
+    padding: 5px 6px;
+    border-radius: 10px;
+  }
+
+
+  .stats_checkbox{
+      width: 8%;
+  }
+
+  .stats_time{
+      width: 46%;
+  }
+
+  .stats_weights{
+      width: 46%;
+  }
+  .maincheckbox{
+      width: 1.5em !important; 
+      height: 1.5em !important;    
+  }
+
+  em{
+    white-space: pre;
+  }
+
+  .label_demo{
+    margin-left: 10px;
+    margin-top: 5px;
+  }
+

@@ -1,0 +1,190 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~bootstrap/scss/bootstrap";
+@import "@runette/leaflet-fullscreen/dist/leaflet.fullscreen.css";
+
+body {
+    margin: 0px !important;
+}
+div.leaflet-container {
+    position: absolute !important;
+    width: 100%;
+    height: calc(100% - 105px);
+  }
+
+  .modal-xl {
+    max-width: 90% !important;
+}
+
+.c3-line-Total-Outgoing-Duration, .c3-line-Total-Incoming-Duration {
+  stroke-dasharray: 5;
+}
+
+.s-c-p-sample-old{
+  background: #ccc !important;
+  color: #333 !important;
+}
+
+
+.s-c-p-sample-new{
+  color: rgb(255, 255, 255) !important;
+}
+
+.s-c-p .s-c-p-sample{
+  height: 22px !important;
+}
+
+.form-check{
+  min-height: 1.2rem !important;
+}
+
+
+div.tooltip {	
+  position: absolute;			
+  text-align: left;			
+  width: auto;			
+  max-width: 700px;		
+  height: auto;					
+  padding: 8px 10px;				
+  font: 12px sans-serif;		
+  background: lightsteelblue;	
+  border: 0px;		
+  border-radius: 8px;			
+  pointer-events: none;			
+}
+
+
+
+#network-vis {
+  height: 90vh;
+  width: 100%;
+  margin-right: 30px;
+  overflow: hidden;
+ /* transform: rotate(270deg) translate(-5%) scale(0.7);
+  /* margin-top: -100%; */
+}
+#network-vis svg {
+  overflow: hidden;
+}
+#network-background {
+  fill: #fff;
+}
+.svg-container {
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+}
+svg {
+  overflow: visible;
+}
+.svg-content-responsive {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+#spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+.hide {
+  display: none;
+}
+.link {
+  fill: none;
+  /* stroke-width: 1px; */
+  stroke: #252525;
+  stroke-opacity: 0.2;
+}
+.link.faded {
+  stroke-opacity: 0.05;
+}
+.link.highlighted {
+  stroke-width: 3px;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+}
+.link.highlight {
+  stroke: #000;
+  stroke-width: 2px;
+}
+.node {
+  cursor: move;
+}
+.node.hovered {
+  stroke: #000;
+  stroke-width: 2px;
+}
+.node.fixed {
+  fill: #f87171;
+}
+.node.faded {
+  opacity: 0.2;
+}
+.node.highlighted {
+  stroke-width: 1.5px;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+}
+.node.highlight {
+  fill: #e15759;
+}
+.node.center {
+  fill: #e15759;
+  stroke: #000;
+}
+.nodes {
+}
+.nodes text {
+  font-family: Futura;
+  font-size: 1.5em;
+  line-height: 20px;
+  fill: #000;
+  /* filter: url(#svg-text-background); */
+  font-weight: bold;
+}
+.links text {
+  font: 1em sans-serif;
+  fill: #000;
+  /* filter: url(#svg-text-background); */
+  font-weight: bold;
+}
+#tooltip {
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  background-color: white;
+  border-width: 1px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  padding: 10px;
+  pointer-events: none;
+}
+#tooltip .meta-date {
+  font-size: 1.2em;
+}
+#tooltip p {
+  margin: 0;
+  font-family: Futura;
+  font-size: 0.9em;
+  line-height: 1.5em;
+}
+
+
+.outlier_node {
+  fill: rgb(255 60 60 / 45%) !important;
+}
+
+.outlier_edge {
+  stroke-width: 4px;
+  stroke: rgb(255 60 60 / 45%) !important;
+}
